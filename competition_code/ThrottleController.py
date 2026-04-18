@@ -34,7 +34,7 @@ class ThrottleController:
 
     def __init__(self):
         self.max_radius = 10000
-        self.max_speed = 300
+        self.max_speed = 305
         self.intended_distance_increment = [15] * 13
         self.dist_index = [0, 1, 2, 3, 4, 5, 6, 7, 8]
         self.intended_target_distance = [0, 30, 60, 90, 120, 140, 170]
@@ -88,17 +88,21 @@ class ThrottleController:
         if current_section == 3:
             if 0 < self.brake_ticks and self.brake_ticks < 5 and speed_excess < 8 and br_count > 5:
                 throttle = 0.2
-        elif current_section == 4:
-            if 0 < self.brake_ticks and self.brake_ticks < 5 and speed_excess < 8 and br_count > 4:
+        elif current_section in [0, 1]:
+            if 0 < self.brake_ticks and self.brake_ticks < 5 and speed_excess < 12 and br_count > 3:
                 prev_throttle = max(0.3, self.prev_throttle[0])
-                throttle = prev_throttle + 0.03
+                throttle = prev_throttle + 0.05
+        elif current_section == 4:
+            if 0 < self.brake_ticks and self.brake_ticks < 5 and speed_excess < 12 and br_count > 3:
+                prev_throttle = max(0.3, self.prev_throttle[0])
+                throttle = prev_throttle + 0.05
         elif current_section == 6:
-            if 0 < self.brake_ticks and self.brake_ticks < 3 and speed_excess < 8 and br_count > 5:
+            if 0 < self.brake_ticks and self.brake_ticks < 4 and speed_excess < 8 and br_count > 4:
                 # prev_throttle = max(0.27, self.prev_throttle[0])
                 # throttle = prev_throttle + 0.03
-                throttle = 0.3
-        elif current_section == 9 and current_speed < 150:
-            if 0 < self.brake_ticks and self.brake_ticks < 8 and speed_excess < 20 and br_count > 5:
+                throttle = 0.35
+        elif current_section == 9 and current_speed < 160:
+            if 0 < self.brake_ticks and self.brake_ticks < 8 and speed_excess < 20 and br_count > 4:
                 prev_throttle = max(0.3, self.prev_throttle[0])
                 throttle = prev_throttle + 0.06
         elif 0 < self.brake_ticks and self.brake_ticks < 5 and speed_excess < 8 and br_count > 5:
@@ -213,10 +217,10 @@ class ThrottleController:
         true_percent_change_per_tick = round(
             avg_speed_change_per_tick / (speed_data.current_speed + 0.001), 5
         )
-        speed_up_threshold = 0.9
+        speed_up_threshold = 0.95
         throttle_decrease_multiple = 0.7
-        throttle_increase_multiple = 1.25
-        brake_threshold_multiplier = 1.0
+        throttle_increase_multiple = 1.35
+        brake_threshold_multiplier = 1.05
         percent_speed_change = (speed_data.current_speed - self.previous_speed) / (
             self.previous_speed + 0.0001
         )  # avoid division by zero
@@ -493,14 +497,20 @@ class ThrottleController:
         if radius >= self.max_radius:
             return self.max_speed
 
+        if current_section == 0:
+            mu = 3.2
+        if current_section == 1:
+            mu = 3.0
         if current_section == 2:
-            mu = 3.35
+            mu = 3.4
         if current_section == 3:
             mu = 3.3
         if current_section == 4:
-            mu = 2.85
+            mu = 3.05
         if current_section == 6:
             mu = 3.3
+        if current_section == 8:
+            mu = 3.1
         if current_section == 9:
             mu = 2.1
 
