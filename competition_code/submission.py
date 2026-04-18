@@ -479,6 +479,7 @@ loc: ({vehicle_location[0]:.2f}, {vehicle_location[1]:.2f}) wp({wpl[0]:.1f}, {wp
             self.maneuverable_waypoints
         )
 
+        next_waypoint_index = next_waypoint_index % len(self.maneuverable_waypoints)
         next_waypoint = self.maneuverable_waypoints[next_waypoint_index]
         next_location = next_waypoint.location
 
